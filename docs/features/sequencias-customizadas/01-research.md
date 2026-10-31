@@ -76,6 +76,6 @@
 
 . Com esse algoritmo, a regra tem duas condições bem especificas. Se o usuário esperar “qualquer música que contenha a sequência pelo menos uma vez” (minha ideia inicial, em research/algoritmo/test_apenas_contigua.py), o resultado será diferente, pois a segunda condição exclui músicas que usam outros acordes além dos da sequência.
 
-. Os bancos listados salvam os dados em um arquivo dentro do próprio container, logo, entre reinicios do container os dados são persistidos mas se o container for recriado os dados não são persistidos. 
+. Os bancos listados salvam os dados em um arquivo dentro do próprio container, logo, entre reinicios do container os dados são persistidos mas se o container for recriado os dados não são persistidos. Para evitar isso, o diretório do banco precisaria ser montado como volume, o que adiciona configuração ao comando de execução.
 
 . Da forma que o frontend mostra as sequências hoje, por utilizar apenas sequências hardcoded definidas em sequencia.js, nem todas as 6 sequências hardcoded no backend são exibidas. Dessa forma, sequências futuras adicionadas por um usuário também não seriam exibidas.
