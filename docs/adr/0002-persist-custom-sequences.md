@@ -1,8 +1,7 @@
 # [Título: decisão de introduzir persistência para sequências de acordes customizadas]
 
-> Escreva no mesmo estilo de `0001-local-only-docker-deploy.md`: parágrafos
-> corridos, sem seções formais obrigatórias — qual era o problema, o que foi
-> decidido, por quê, e quais consequências/trade-offs isso traz. Apague este
-> bloco de instruções antes de entregar.
+O projeto não tinha nenhuma persistência: o `main.py` carrega o `dataset_final.csv` em memória na inicialização, e as seis sequências de acordes famosas estão fixas no código e são buscadas por meio de uma tag pré-computada (`SEQ_FAMOSA`) que vem do CSV. Além disso, o frontend mantém uma lista própria com apenas quatro sequências em `sequencia.js`, que não corresponde a todas as sequências existentes no backend. Mudar o conjunto de sequências exigia alterar o código e ter que fazer um novo deploy.
 
-[seu texto aqui]
+Para conseguir guardar as seis sequências, e também as futuras sequências customizadas vindas de usuários, de modo que sobrevivam a reinícios do servidor, decidimos persistir o catálogo de sequências no banco embarcado `SQLite`. Este banco é acessado pelo módulo `sqlite3` da biblioteca padrão do Python e terá uma única tabela `sequencias` populada na inicialização com as seis sequências originais. Músicas e gêneros continuam vindo do CSV. A decisão veio do fato de esse banco ser viável dentro do container Docker único e local-only, de acordo com as especificações dadas na ADR `0001-local-only-docker-deploy.md`. 
+
+Dessa forma, a aplicação passa a possuir estado, ou seja, o arquivo do banco sobrevive a reinicialização do container. Entretanto, o arquivo é perdido caso o container seja removido ou recriado, a menos que o diretório do banco seja montado como volume, o que adiciona um parâmetro ao comando `docker run` e precisa ser documentado no README.
