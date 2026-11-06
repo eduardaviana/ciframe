@@ -159,7 +159,8 @@ a:active {
 .vertical-panel-C { background-color: #BA007C;}
 
 .acordes-container {
-  width: 300px; /* to hold 6 hexs*/
+  width: 100%;
+  max-width: 300px; /* to hold 6 hexs*/
   margin: auto;
   clear: both;
 }
@@ -193,6 +194,174 @@ a:active {
   font-size: 1.6em;
   top: -31px;
   font-weight: bold;
+}
+/* Modal de cadastro de sequência */
+.sequencia-cadastro-modal .modal-content {
+  background-color: #FFFFFF;
+  color: #333333;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 20px);
+}
+.sequencia-cadastro-modal .modal-header,
+.sequencia-cadastro-modal .modal-footer {
+  border-color: #E5E5E5;
+  flex: 0 0 auto;
+}
+.sequencia-cadastro-modal .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+@media (min-width: 768px) {
+  .sequencia-cadastro-modal .modal-dialog {
+    width: 720px;
+    margin: 10px auto;
+  }
+}
+.sequencia-cadastro-grade .acordes-container::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+@media (min-width: 768px) {
+  .sequencia-cadastro-grade {
+    display: grid;
+    grid-template-columns: repeat(2, 300px);
+    justify-content: center;
+    column-gap: 20px;
+    row-gap: 8px;
+  }
+  .sequencia-cadastro-modal .sequencia-selecionada .acordes-container {
+    max-width: 600px;
+  }
+}
+.sequencia-cadastro-modal .close {
+  color: #BA007C;
+  opacity: 0.75;
+  text-shadow: none;
+}
+.sequencia-cadastro-modal .close:hover,
+.sequencia-cadastro-modal .close:focus {
+  color: #7A0052;
+  opacity: 1;
+}
+.sequencia-cadastro-modal .btn-cadastrar {
+  background-color: #4CAF50;
+  color: #FFFFFF;
+}
+.sequencia-cadastro-modal .btn-cadastrar:hover,
+.sequencia-cadastro-modal .btn-cadastrar:focus,
+.sequencia-cadastro-modal .btn-cadastrar:active {
+  background-color: #3D8B40;
+  color: #FFFFFF;
+}
+.sequencia-cadastro-modal .btn-cancelar {
+  background-color: #D32F2F;
+  color: #FFFFFF;
+}
+.sequencia-cadastro-modal .btn-cancelar:hover,
+.sequencia-cadastro-modal .btn-cancelar:focus,
+.sequencia-cadastro-modal .btn-cancelar:active {
+  background-color: #B71C1C;
+  color: #FFFFFF;
+}
+.sequencia-cadastro-modal .acorde-wrapper.acorde-checked .hex {
+  stroke: #BA007C;
+  stroke-width: 20;
+  stroke-linejoin: round;
+}
+.sequencia-cadastro-modal h4 {
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+.sequencia-cadastro-modal .sequencia-selecionada {
+  margin-bottom: 30px;
+}
+.sequencia-cadastro-modal .sequencia-selecionada::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.sequencia-cadastro-modal .sequencia-mensagens {
+  margin-top: 20px;
+}
+.sequencia-cadastro-modal .sequencia-mensagens .alert {
+  margin-top: 15px;
+}
+.cadastro-sequencia-actions {
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+.viewWindow-panel-C .alert {
+  margin-top: 20px;
+}
+.sequencia-toast {
+  position: fixed;
+  top: 90px;
+  left: 0;
+  z-index: 2000;
+  width: 100%;
+  padding: 0 15px;
+  box-sizing: border-box;
+  pointer-events: none;
+  animation: sequencia-toast-out 0.3s ease-in 2.2s forwards;
+}
+.sequencia-toast .alert {
+  max-width: 420px;
+  margin: 0 auto;
+  background-color: rgba(223, 240, 216, 0.65);
+  border-color: rgba(60, 118, 61, 0.55);
+  color: #1F4D1F;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  text-align: center;
+  animation: sequencia-toast-in 0.2s ease-out;
+}
+@media (min-width: 768px) {
+  .sequencia-toast {
+    width: 50%;
+  }
+}
+@media (min-width: 992px) {
+  .sequencia-toast {
+    width: 33.33333333%;
+  }
+}
+@keyframes sequencia-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sequencia-toast-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@media (max-width: 480px) {
+  .sequencia-cadastro-modal .modal-body {
+    padding: 15px;
+  }
+  .sequencia-cadastro-modal .modal-footer {
+    display: flex;
+    flex-direction: column;
+  }
+  .sequencia-cadastro-modal .modal-footer .btn {
+    width: 100%;
+    margin: 5px 0 0 0;
+  }
+  .sequencia-cadastro-modal .modal-footer .btn:first-child {
+    margin-top: 0;
+  }
 }
 /* Esfinge */
 .esfinge.ng-hide-add {

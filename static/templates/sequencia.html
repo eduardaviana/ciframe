@@ -1,12 +1,19 @@
 <div class="container-fluid">
+  <div class="sequencia-toast" ng-if="Sequencia.mensagemSucesso" role="status" aria-live="polite">
+    <div class="alert alert-success">{{Sequencia.mensagemSucesso}}</div>
+  </div>
   <div class="row">
     <div class="col-sm-6 col-md-4 viewWindow-panel viewWindow-panel-C">
       <div class="viewWindow-panel-container">
         <h4 class="text-center">Aponte uma sequencia de acordes</h4>
+        <div class="text-center cadastro-sequencia-actions">
+          <button class="btn btn-default" ng-click="Sequencia.abrirCadastro()">Cadastrar sequência</button>
+        </div>
         <div class="acordes-container" ng-repeat='sequencia in Sequencia.sequenciasFamosas' ng-click="Sequencia.pesquisarPorSequencia(sequencia)">
           <df-hex acorde="{{acordeon.acorde}}" acorde-color="{{acordeon.cor}}" acorde-checked="Sequencia.temAcorde(acordeon)" ng-repeat="acordeon in sequencia.acordes"></df-hex>
         </div>
         <br style="clear: both;">
+        <div class="alert alert-danger" ng-if="Sequencia.erroCatalogo" role="alert">{{Sequencia.erroCatalogo}}</div>
         <button class="search-results-count" ng-if="Sequencia.showSearchResultsCount" ng-click="Sequencia.goToResults()">
           <span class="glyphicon glyphicon-triangle-bottom bounce animated infinite"></span>
           <br>
@@ -61,3 +68,38 @@
     </div>
   </div>
 </div>
+
+<script type="text/ng-template" id="sequenciaCadastroModal.html">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="Cadastro.cancelar()" aria-label="Fechar">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <h3 class="modal-title">Cadastrar sequência</h3>
+  </div>
+  <div class="modal-body">
+    <p>Escolha os acordes na ordem da sequência.</p>
+
+    <div class="sequencia-cadastro-grade">
+      <div class="acordes-container" ng-repeat='acordesCollection in Cadastro.acordes'>
+        <df-hex acorde="{{acordeon.acorde}}" acorde-color="{{acordeon.cor}}" acorde-checked="Cadastro.temAcorde(acordeon)" ng-repeat="acordeon in acordesCollection" ng-click="Cadastro.adicionarAcorde(acordeon)"></df-hex>
+      </div>
+    </div>
+
+    <h4>Sequência montada</h4>
+    <div class="sequencia-selecionada" ng-if="Cadastro.minhaSequencia.length">
+      <div class="acordes-container">
+        <df-hex acorde="{{acordeon.acorde}}" acorde-color="{{acordeon.cor}}" ng-repeat="acordeon in Cadastro.minhaSequencia track by $index" ng-click="Cadastro.removerAcorde($index)" title="Clique para remover este acorde"></df-hex>
+      </div>
+    </div>
+    <div class="sequencia-mensagens">
+      <p ng-if="!Cadastro.minhaSequencia.length">Nenhum acorde escolhido.</p>
+      <p>{{Cadastro.minhaSequencia.length}} acorde(s) selecionado(s).</p>
+      <p class="text-danger" ng-if="Cadastro.minhaSequencia.length < 2">Escolha pelo menos 2 acordes.</p>
+      <div class="alert alert-danger" ng-if="Cadastro.erro">{{Cadastro.erro}}</div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-cancelar" ng-click="Cadastro.cancelar()">Cancelar</button>
+    <button class="btn btn-cadastrar" ng-click="Cadastro.cadastrar()" ng-disabled="Cadastro.minhaSequencia.length < 2">Cadastrar</button>
+  </div>
+</script>
