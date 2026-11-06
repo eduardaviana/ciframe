@@ -10,8 +10,11 @@ import unicodedata
 
 app = Flask(__name__)
 
-DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'db')
-DB_PATH = os.path.join(DB_DIR, 'sequencias.db')
+DB_PATH = os.environ.get(
+    'SEQUENCIAS_DB_PATH',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'db', 'sequencias.db')
+)
+DB_DIR = os.path.dirname(DB_PATH) or '.'
 
 def init_db():
     try:
@@ -73,6 +76,8 @@ MUSICA = 3
 GENERO = 4
 POPULARIDADE = 5
 TOM = 6
+# SEQ_FAMOSA é mantida apenas como ground truth de regressão dos testes.
+# A busca por sequência usa exclusivamente o catálogo SQLite + matcher.
 SEQ_FAMOSA = 7
 CIFRA = 8
 TAM_PAGINA = 100
@@ -338,29 +343,6 @@ def get_similares():
     similares = get_similares(acordes, generos_key, id_musica_tag)
 
     return json.dumps(get_pagina(similares, pagina_tag))
-
-def get_similares_por_sequencia(id_seq, generos_key):
-    # filtra para melhor desempenho
-    collection = apply_filtro(musicas.values(), generos_key)
-
-    similares = []
-    for musica in collection:
-        if str(id_seq) in musica.seqs_famosas:
-            similar = {
-                'id_unico_musica' : musica.id_unico_musica,
-                'id_artista' : musica.id_artista,
-                'id_musica' : musica.id_musica,
-                'nome_artista' : musica.nome_artista,
-                'nome_musica' : musica.nome_musica,
-                'popularidade' : musica.popularidade,
-                'acordes' : musica.acordes,
-                'genero' : musica.genero,
-                'url' : musica.url,
-            }
-            similares.append(similar)
-
-    return similares
-
 
 def get_pagina(colecao, pagina_tag):
     sl = (int(pagina_tag) - 1)*TAM_PAGINA
