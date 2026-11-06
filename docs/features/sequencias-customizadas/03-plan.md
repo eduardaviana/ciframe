@@ -26,10 +26,25 @@
    - [ ] Alterar `GET /similares`: ao receber parâmetro `sequencia`, buscar a sequência no catálogo do banco SQLite (ao invés de filtrar por `seqs_famosas` do CSV). Aplicar o matcher em tempo real com as duas condições. Manter entrada/saída no formato atual (`?sequencia=Bm,G,D,A&generos=...` opcional), paginação e ordenação existentes, e continuar retornando `json.dumps(...)`.
 
 4. [ ] **Atualização do frontend (`#/porsequencia`)**
-   - [ ] Remover sequências hardcoded `sequencia1..sequencia4` de `static/assets/js/controllers/sequencia.js:2-37`.
-   - [ ] Carregar catálogo via `GET /sequencias` no `init()` do `SequenciaController` e popular `vm.sequenciasFamosas` (ou equivalente).
-   - [ ] Adicionar UI de cadastro na página `#/porsequencia` (reaproveitando padrão de seleção de acordes por botões da página `#/poracordes`). Enviar `POST /sequencias` com lista ordenada, recarregar catálogo em caso de sucesso ou exibir mensagem de erro vinda do backend.
-   - [ ] Garantir que ao clicar em qualquer sequência (antiga ou nova) a busca chame `GET /similares?sequencia=...` com filtro opcional por gênero, mantendo ordenação por `-popularidade` e comportamento existente do template (`static/templates/sequencia.html`).
+   - [ ] Remover as sequências hardcoded `sequencia1..sequencia4` de `static/assets/js/controllers/sequencia.js:2-37`.
+   - [ ] Carregar o catálogo via `GET /sequencias` no início do `SequenciaController` (chamada direta; AngularJS 1.4.9 não tem `$onInit`) e popular `vm.sequenciasFamosas` com os itens do backend convertidos para o formato dos hexágonos: `acordes.split(';')` -> `[{acorde, cor}]`, usando `#2E1C74` para todas as sequências.
+   - [ ] Exibir o catálogo completo (6 originais + novas) só com hexágonos, sem nome/rótulo, mantendo o layout atual do painel esquerdo. Novas sequências aparecem ao final porque `GET /sequencias` ordena por `id`.
+   - [ ] Adicionar o botão "Cadastrar sequência" acima do catálogo, no painel esquerdo, abrindo um modal suspenso (`$uibModal` com template inline em `sequencia.html`, sem criar arquivo novo).
+   - [ ] No modal, montar a sequência com a mesma grade de hexágonos de `#/poracordes`:
+     - cada clique em um hexágono **acrescenta** o acorde ao fim da lista, mesmo que ele já tenha sido escolhido (repetição permitida);
+     - a sequência montada aparece em ordem em uma faixa própria; clicar em um acorde dessa faixa remove **aquela ocorrência**;
+     - não haverá reordenação por drag-and-drop nem setas; para mudar a ordem, o usuário remove e adiciona de novo;
+     - exibir apenas a quantidade selecionada, sem limite máximo.
+   - [ ] Validar no frontend apenas o mínimo de 2 acordes:
+     - menos de 2: manter o botão "Cadastrar" desabilitado e exibir "Escolha pelo menos 2 acordes.";
+     - não impor limite máximo de acordes.
+   - [ ] Enviar `POST /sequencias` com `{"sequencia": [acordes na ordem]}`:
+     - sucesso (200): limpar a seleção, fechar o modal, recarregar o catálogo com `GET /sequencias` e mostrar "Sequência cadastrada com sucesso." em um aviso suspenso sobre o painel esquerdo, que desaparece automaticamente após alguns segundos;
+     - erro 400: mostrar inline no modal a mensagem `data.erro` vinda do backend;
+     - erro 409: mostrar inline no modal a mensagem `data.erro` ("sequência já cadastrada");
+     - erro de rede/servidor: mostrar inline no modal "Não foi possível cadastrar a sequência. Tente novamente.".
+   - [ ] Se `GET /sequencias` falhar ao carregar o catálogo, mostrar "Não foi possível carregar o catálogo." no painel esquerdo.
+   - [ ] Garantir que ao clicar em qualquer sequência (antiga ou nova) a busca chame `GET /similares?sequencia=...` com a lista de acordes separada por vírgulas e filtro opcional por gênero, mantendo a ordenação por popularidade e o comportamento existente do template (`static/templates/sequencia.html`).
    - [ ] Garantir que o catálogo exibido reflete o que vem do backend (resolvendo o descompasso entre 4 sequências no frontend e 6 no backend).
 
 5. [ ] **Limpeza e integração**
