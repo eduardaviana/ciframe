@@ -56,19 +56,20 @@
 
 #### Automatizados por passo
 
-- **Passo 1 — banco e seed:** `test_passo1_exec_main.py`
-  - Usa `SEQUENCIAS_DB_PATH` apontando para um banco temporário e não toca em `data/db/sequencias.db`.
-  - Verifica criação do diretório/arquivo, tabela `sequencias`, restrição `UNIQUE`, seed das 6 originais, ausência de duplicatas e persistência de uma sequência customizada após nova inicialização.
-- **Passo 2 — matcher:** `test_passo2_matcher.py`
+- **Passo 1 — banco e seed:** `tests/test_passo1_exec_main.py` e `tests/test_passo1_docker_persistence.py`
+  - `tests/test_passo1_exec_main.py` usa `SEQUENCIAS_DB_PATH` apontando para um banco temporário e não toca em `data/db/sequencias.db`; verifica criação do diretório/arquivo, tabela `sequencias`, restrição `UNIQUE`, seed das 6 originais, ausência de duplicatas e persistência de uma sequência customizada após nova inicialização.
+  - `tests/test_passo1_docker_persistence.py` constrói a imagem, cadastra uma sequência em um volume nomeado, remove/recria o container com o mesmo volume e confirma a persistência; depois sobe sem volume e confirma que só as 6 originais existem. Se o Docker não estiver disponível, o teste é ignorado com `SKIP`.
+- **Passo 2 — matcher:** `tests/test_passo2_matcher.py`
   - Regressão contra `SEQ_FAMOSA` para as 6 originais, exigindo 0 divergências.
-  - Casos sintéticos de ordem, contiguidade, subconjunto de acordes e sequência vazia.
-- **Passo 3 — rotas:** `test_passo3_routes.py`
-  - `GET /sequencias`, `POST /sequencias` e `/similares?sequencia=...`.
-  - Status 200, 400 e 409; paginação; ordenação por popularidade; ausência de `diferenca`/`intersecao` no caminho por sequência.
-- **Passo 4 — frontend:** `test_passo4_frontend.md`
-  - Checklist manual versionado para catálogo, modal, validações, sucesso, erros, busca e responsividade.
-- **Passo 5 — integração:** `test_passo5_integration.py`
-  - Busca funciona com `seqs_famosas` desativado.
+  - Casos sintéticos de ordem, contiguidade, subconjunto de acordes, sequência vazia, cifra vazia, sequência maior que a cifra e acordes repetidos.
+- **Passo 3 — rotas:** `tests/test_passo3_routes.py`
+  - `GET /sequencias`, `POST /sequencias` e `/similares?sequencia=...`, com banco temporário isolado.
+  - Status 200, 400 e 409; mensagens de erro exatas; acorde não-string; preservação de espaços/sem normalização; ausência de limite máximo; duplicata; filtro opcional `generos`; paginação; ordenação por popularidade; ausência de `diferenca`/`intersecao` no caminho por sequência.
+- **Passo 4 — frontend:** `tests/test_passo4_frontend.md` e `tests/sequencia.spec.js`
+  - `tests/sequencia.spec.js` (Playwright) cobre catálogo vindo de `GET /sequencias`, abertura do modal, seleção de acordes, POST, toast, recarga do catálogo, busca pela sequência nova, duplicata, erro de rede, erro de catálogo e ausência de rolagem horizontal em 375px.
+  - `tests/test_passo4_frontend.md` permanece como checklist manual para detalhes visuais e responsividade que não valem um teste E2E.
+- **Passo 5 — integração:** `tests/test_passo5_integration.py`
+  - Usa banco temporário isolado; busca funciona com `seqs_famosas` desativado.
   - Músicas/gêneros continuam vindos do CSV em memória.
   - Endpoints de API continuam retornando `json.dumps` com `Content-Type: text/html`.
 
@@ -84,20 +85,34 @@
 
 #### Persistência
 
-- Subir com volume: `docker run -p 8080:8080 -v "${PWD}/data/db:/app/data/db" ciframe`.
-- Cadastrar uma sequência, reiniciar o container e confirmar que ela continua em `GET /sequencias`.
+- Cobertura automatizada: `py tests/test_passo1_docker_persistence.py` (volume nomeado, remoção/recriação e execução sem volume).
+- Equivalente manual: subir com volume `docker run -p 8080:8080 -v "${PWD}/data/db:/app/data/db" ciframe`, cadastrar uma sequência, reiniciar o container e confirmar que ela continua em `GET /sequencias`.
 - Recriar o container sem volume e confirmar que apenas as 6 originais são recriadas.
 
 #### Regressão final
 
+Comando único, a partir da raiz do repositório:
+
 ```powershell
-py test_passo1_exec_main.py
-py test_passo2_matcher.py
-py test_passo3_routes.py
-py test_passo5_integration.py
+npm.cmd install
+npm.cmd test
 ```
 
-O checklist manual do Passo 4 deve ser executado no navegador em 375px, 768px e 1280px.
+`npm.cmd test` executa os 5 scripts Python e o Playwright. Os comandos
+individuais continuam disponíveis:
+
+```powershell
+py tests/test_passo1_exec_main.py
+py tests/test_passo1_docker_persistence.py
+py tests/test_passo2_matcher.py
+py tests/test_passo3_routes.py
+py tests/test_passo5_integration.py
+npm.cmd run test:frontend
+```
+
+O teste de browser usa o Microsoft Edge instalado por padrão (`PW_CHANNEL` pode
+ser definido para outro canal do Playwright). O checklist manual do Passo 4
+continua disponível para detalhes visuais em 375px, 768px e 1280px.
 
 ## Arquivos afetados
 
@@ -109,8 +124,12 @@ O checklist manual do Passo 4 deve ser executado no navegador em 375px, 768px e 
 | `static/templates/sequencia.html` | Adicionar interface para cadastro de nova sequência por botões de acordes (reaproveitando padrão de `#/poracordes`), exibir catálogo vindo do backend. |
 | `(novo) data/db/sequencias.db` ou diretório de banco | Arquivo SQLite criado automaticamente. O caminho padrão é `data/db/sequencias.db` e pode ser alterado por `SEQUENCIAS_DB_PATH`; deve ficar em local montável por volume. |
 | `README.md` | Documentar o SQLite, a variável `SEQUENCIAS_DB_PATH`, o comando Docker com volume e o comportamento sem volume. |
-| `test_passo1_exec_main.py`, `test_passo2_matcher.py`, `test_passo3_routes.py`, `test_passo5_integration.py` | Testes automatizados por passo. |
-| `test_passo4_frontend.md` | Checklist manual versionado do frontend. |
+| `tests/test_passo1_exec_main.py`, `tests/test_passo2_matcher.py`, `tests/test_passo3_routes.py`, `tests/test_passo5_integration.py` | Testes automatizados por passo, com banco temporário. |
+| `tests/test_passo1_docker_persistence.py` | Teste automatizado de persistência com volume Docker. |
+| `tests/test_passo4_frontend.md` | Checklist manual versionado do frontend. |
+| `tests/sequencia.spec.js`, `playwright.config.js`, `package.json`, `package-lock.json` | Teste de browser do Passo 4 com Playwright. |
+| `tests/run-all.js` | Executa todos os testes automatizados com um único comando (`npm.cmd test`). |
+| `.gitignore`, `.dockerignore` | Exclusão de artefatos de teste e `node_modules` do repositório e da imagem Docker. |
 
 ## Riscos e mitigação
 

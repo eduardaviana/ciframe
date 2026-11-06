@@ -1,0 +1,12 @@
+{
+  "name": "deciframe-tests",
+  "private": true,
+  "scripts": {
+    "test": "node tests/run-all.js",
+    "test:all": "node tests/run-all.js",
+    "test:frontend": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
+  }
+}

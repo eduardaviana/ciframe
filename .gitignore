@@ -3,3 +3,6 @@ static/assets/vendor
 *.pyc
 __pycache__/
 data/db/
+node_modules/
+test-results/
+playwright-report/
